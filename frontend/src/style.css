@@ -40,3 +40,9 @@ span {
     font-weight: bold;
     width: 40%;
 }
+
+
+h1 {
+    font-size: 3rem;
+    margin-bottom: 3rem;
+}

@@ -11,11 +11,13 @@ function App() {
 
     return (
         <div className="container" id="App">
+
+            <h1>Administrador de Tareas</h1>
             <div className="row">
                 <div className="col-6">
                     <div className="cpu-container">
                         <span>CPU Usage</span>
-                        <div style={{width: 400}} >
+                        <div style={{maxWidth: 400}} >
                             <PieChart />
                         </div>
                     </div>
@@ -24,7 +26,7 @@ function App() {
                 <div className="col-6">
                 <div className="cpu-container">
                         <span>Disk Usage</span>
-                        <div style={{width: 400}} >
+                        <div style={{maxWidth: 400}} >
                             <DiskChart />
                         </div>
                     </div>
