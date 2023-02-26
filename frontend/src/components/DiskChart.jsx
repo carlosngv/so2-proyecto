@@ -6,11 +6,11 @@ import { DiskUsage } from '../../wailsjs/go/main/App';
 export const DiskChart = () => {
 
   const [userData, setUserData] = useState({
-    labels: ["All", "Free", "Used"],
+    labels: [ "Free", "Used"],
     datasets: [{
         label: "Disk Usage",
-        data: [33.33, 33.33, 33.33],
-        backgroundColor: ["blue", "cyan", "red"]
+        data: [50, 50],
+        backgroundColor: ["cyan", "red"]
     }]
 });
 
@@ -19,7 +19,7 @@ export const DiskChart = () => {
     setInterval(() => {
       DiskUsage().then(res => {
         console.log(res)
-        updateData([res.All, res.Used, res.All - res.Used])
+        updateData([res.Used, res.All - res.Used])
       })
     }, 2000)
 
@@ -31,7 +31,7 @@ export const DiskChart = () => {
       datasets: [{
         label: "Disk Usage",
         data: perc,
-        backgroundColor: ["blue", "cyan", "red"]
+        backgroundColor: ["cyan", "red"]
       }]
     })
   }
