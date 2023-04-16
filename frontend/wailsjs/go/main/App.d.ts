@@ -11,4 +11,6 @@ export function Greet(arg1:string):Promise<string>;
 
 export function LogInfo(arg1:string):Promise<string>;
 
+export function ReadMemoryStats():Promise<main.Memory>;
+
 export function WailsInit(arg1:runtime.Runtime):Promise<void>;

@@ -6,6 +6,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/pbnjay/memory"
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/wailsapp/wails"
 )
@@ -100,4 +101,25 @@ func (a *App) DiskUsage() DiskStatus {
 	disk.Free = float64(used)/float64(GB)
 	disk.Used = float64(free)/float64(GB)
 	return disk
+}
+
+type Memory struct {
+    MemTotal     uint64
+    MemFree      uint64
+    MemUsed uint64
+}
+
+func (a *App) ReadMemoryStats() Memory {
+	memTotal := memory.TotalMemory()/1000000
+	memFree := memory.FreeMemory()/100000
+	memUsed := memTotal - memFree
+    fmt.Printf("Total system memory: %d\n", memTotal)
+    fmt.Printf("Free system memory: %d\n", memFree)
+    fmt.Printf("Used system memory: %d\n", memUsed)
+	mem := Memory{
+		MemTotal: memTotal,
+		MemFree: memFree,
+		MemUsed: memUsed,
+	}
+	return mem
 }

@@ -18,6 +18,10 @@ export function LogInfo(arg1) {
   return window['go']['main']['App']['LogInfo'](arg1);
 }
 
+export function ReadMemoryStats() {
+  return window['go']['main']['App']['ReadMemoryStats']();
+}
+
 export function WailsInit(arg1) {
   return window['go']['main']['App']['WailsInit'](arg1);
 }
