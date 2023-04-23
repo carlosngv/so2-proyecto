@@ -41,6 +41,7 @@ func NewApp() *App {
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 	a.deleteFile()
+	a.deleteFolder()
 }
 
 // Greet returns a greeting for the given name
@@ -222,7 +223,7 @@ func (a *App) UnblockAllDevices() {
     }
 
 	a.WriteLog("Puertos USB desbloqueados.")
-    // Ejecutar el comando y comprobar si se ha producido algún error.
+    // Ejecutar el comando y comprobar si se ha producido algún error
     err := cmd.Run()
     if err != nil {
 
@@ -261,7 +262,7 @@ func (a *App) ManageLogs() {
 		return
 	}
 
-	fmt.Printf("PathExists: %v\n Path: %v", pathExists, mediaPath)
+	fmt.Printf("PathExists: %v\nPath: %v", pathExists, mediaPath)
 
 
 	if pathExists {
@@ -295,6 +296,25 @@ func (a *App) deleteFile() {
 	 } else {
 		fmt.Printf("File does not exist\n");
 	 }
+}
+
+func (a *App) deleteFolder() {
+	dir := "ArchivosUSB"
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+
+		err := os.Remove(dir)
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			fmt.Println("Directory", dir, "removed successfully")
+		}
+
+		if err := os.Mkdir(dir, os.ModePerm); err != nil {
+			log.Fatal(err)
+		}
+	} else {
+	   fmt.Println("The provided directory named", dir, "exists")
+	}
 }
 
 func(a *App) WriteLog(text string) {
