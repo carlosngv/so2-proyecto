@@ -3,8 +3,12 @@ package main
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
+	"log"
+	"os"
 	"os/exec"
 	"runtime"
+	"strings"
 	"syscall"
 	"time"
 
@@ -14,7 +18,7 @@ import (
 )
 
 // App struct
-
+var usbFileNames string
 type CPUData struct {
 	UserUsage float64
 	SystemUsage float64
@@ -36,6 +40,7 @@ func NewApp() *App {
 
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
+	a.deleteFile()
 }
 
 // Greet returns a greeting for the given name
@@ -128,14 +133,15 @@ func (a *App) ReadMemoryStats() Memory {
 
 func (a *App) BlockUSBPorts() error {
 	var cmd *exec.Cmd
+	cmd.Stdin = os.Stdin
 
 	fmt.Printf("OS: %v", runtime.GOOS)
 
 	if runtime.GOOS == "darwin" {
 		cmd = exec.Command("sudo", "pmset", "-a", "hibernatemode", "0")
 	} else if runtime.GOOS == "linux" {
-		cmd = exec.Command("sudo", "modprobe", "-r", "usb_storage")
-		// cmd := exec.Command("sh", "-c", "echo 'contraseña1234' | sudo -S chmod 0000 /media")
+		//cmd = exec.Command("sudo", "modprobe", "-r", "usb_storage")
+		cmd = exec.Command("sh", "-c", "echo 'Xunix..unix' | sudo -S chmod 0000 /media")
 
 	} else {
 		return fmt.Errorf("unsupported operating system")
@@ -144,6 +150,7 @@ func (a *App) BlockUSBPorts() error {
 	err := cmd.Run()
 	fmt.Println("Puertos USB Bloqueados!")
 	if err != nil {
+
 		return err
 	}
 
@@ -182,21 +189,20 @@ func (a *App) BlockAllDevices()  {
 
 	fmt.Printf("Sistema Operativo: %v\n", runtime.GOOS)
     if runtime.GOOS == "darwin" {
-        cmd = exec.Command("sudo", "sh", "-c", "echo 'disable' > /sys/bus/usb/drivers/usb/unbind")
+        cmd = exec.Command("sudo", "pmset", "-a", "hibernatemode", "0")
     } else if runtime.GOOS == "linux" {
-        cmd = exec.Command("sudo", "sh", "-c", "echo '0' > /sys/bus/usb/drivers/usb/unbind")
+        //cmd = exec.Command("sudo", "sh", "-c", "echo '0' > /sys/bus/usb/drivers/usb/unbind")
+		cmd = exec.Command("sh", "-c", "echo 'Xunix..unix' | sudo -S chmod 0000 /media")
     } else {
         fmt.Errorf("Sistema operativo no soportado")
     }
 
     // Ejecutar el comando y comprobar si se ha producido algún error.
+	a.WriteLog("Puertos USB bloqueados.")
     err := cmd.Run()
     if err != nil {
-		fmt.Println("ERROR")
         return
     }
-	fmt.Println("Esperando 10 segundos...")
-    time.Sleep(10 * time.Second)
 }
 
 // Desbloquear todos los dispositivos USB.
@@ -207,18 +213,101 @@ func (a *App) UnblockAllDevices() {
 	fmt.Printf("Sistema Operativo: %v\n", runtime.GOOS)
 
     if runtime.GOOS == "darwin" {
-        cmd = exec.Command("sudo", "sh", "-c", "echo 'enable' > /sys/bus/usb/drivers/usb/bind")
+        cmd = exec.Command("sudo", "kextload", "-b", "com.apple.driver.AppleUSBFTDI")
     } else if runtime.GOOS == "linux" {
-        cmd = exec.Command("sudo", "sh", "-c", "echo '1' > /sys/bus/usb/drivers/usb/bind")
+		cmd = exec.Command("sh", "-c", "echo 'Xunix..unix' | sudo -S chmod 0777 /media")
+
     } else {
  		fmt.Errorf("Sistema operativo no soportado")
     }
 
+	a.WriteLog("Puertos USB desbloqueados.")
     // Ejecutar el comando y comprobar si se ha producido algún error.
     err := cmd.Run()
     if err != nil {
-		fmt.Println("ERROR")
+
         return
     }
+
+}
+
+func (a *App) readFilesInFolder(path string) {
+	files, err := ioutil.ReadDir(path)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, f := range files {
+		if strings.Contains(usbFileNames, f.Name()) == false {
+			usbFileNames = fmt.Sprintf("%v|%v", f.Name(), usbFileNames)
+			if(strings.Contains(path, "Volumes")) {
+				a.WriteLog(fmt.Sprintf("Archivo %v ya se encuentra en el USB", f.Name()))
+			} else {
+				a.WriteLog(fmt.Sprintf("Archivo %v ya se encuentra en la carpeta local", f.Name()))
+			}
+		}
+	}
+	fmt.Printf("Archivos en USB y local: %v\n", usbFileNames)
+}
+
+func (a *App) ManageLogs() {
+	mediaPath :="/Volumes/Seagate Expansion Drive/"
+	localPath := "ArchivosUSB"
+	pathExists, err := validateUSBPath(mediaPath)
+
+	if err != nil {
+		fmt.Printf("La ruta no existe, se ha generado el siguiente error: %v\n", err)
+		time.Sleep(10 * time.Second)
+		return
+	}
+
+	fmt.Printf("PathExists: %v\n Path: %v", pathExists, mediaPath)
+
+
+	if pathExists {
+		a.readFilesInFolder(mediaPath)
+		a.readFilesInFolder(localPath)
+	}
+}
+
+
+
+// Comprueba si la ruta especificada existe
+func validateUSBPath(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+
+	return false, err
+}
+
+func (a *App) deleteFile() {
+	if _, err := os.Stat("bitacora.log"); err == nil {
+		e := os.Remove("bitacora.log")
+		if e != nil {
+			log.Fatal(e)
+		}
+	 } else {
+		fmt.Printf("File does not exist\n");
+	 }
+}
+
+func(a *App) WriteLog(text string) {
+	file, e := os.OpenFile("bitacora.log", os.O_CREATE | os.O_WRONLY | os.O_APPEND, 0666)
+	if e != nil {
+		log.Fatalln("Failed")
+		return
+	}
+
+	log.SetOutput(file)
+	dt := time.Now()
+	fmt.Println(dt.Format(time.Kitchen))
+	log.Println(dt.String() + " || " +text)
+
 
 }

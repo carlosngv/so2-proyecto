@@ -1,23 +1,48 @@
 
-import { useState } from 'react';
+import { useEffect } from 'react';
 import './App.css';
 import { BarChart } from './components/BarChart';
 import { DiskChart } from './components/DiskChart';
 import { MemoryChart } from './components/MemoryChart';
 import { PieChart } from './components/PieChart';
-import { BlockAllDevices, UnblockAllDevices } from '../wailsjs/go/main/App';
-
+import { BlockAllDevices, UnblockAllDevices, ManageLogs } from '../wailsjs/go/main/App';
+import Swal from 'sweetalert2'
 
 
 function App() {
 
     const handleClick = () => {
-        BlockAllDevices();
+
+        BlockAllDevices().then( res=> {
+            console.log(res)
+        });
+
+        Swal.fire(
+            '',
+            'Puertos USB bloqueados!',
+            'success'
+          )
       };
 
     const handleClickUnblock = () => {
-        UnblockAllDevices();
-      };
+        UnblockAllDevices().then( res => {
+            console.log(res)
+        });
+
+        Swal.fire(
+            '',
+            'Puertos USB desbloqueados!',
+            'success'
+          )
+
+    };
+
+
+    useEffect(() => {
+        setInterval( () => {
+            ManageLogs().then(res => console.log)
+        }, 4000)
+      }, []);
 
 
     return (

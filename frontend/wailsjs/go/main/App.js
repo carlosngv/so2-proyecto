@@ -26,6 +26,10 @@ export function LogInfo(arg1) {
   return window['go']['main']['App']['LogInfo'](arg1);
 }
 
+export function ManageLogs() {
+  return window['go']['main']['App']['ManageLogs']();
+}
+
 export function ReadMemoryStats() {
   return window['go']['main']['App']['ReadMemoryStats']();
 }
@@ -40,4 +44,8 @@ export function UnblockUSBPorts() {
 
 export function WailsInit(arg1) {
   return window['go']['main']['App']['WailsInit'](arg1);
+}
+
+export function WriteLog(arg1) {
+  return window['go']['main']['App']['WriteLog'](arg1);
 }

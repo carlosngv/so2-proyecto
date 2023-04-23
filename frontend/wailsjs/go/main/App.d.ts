@@ -15,6 +15,8 @@ export function Greet(arg1:string):Promise<string>;
 
 export function LogInfo(arg1:string):Promise<string>;
 
+export function ManageLogs():Promise<void>;
+
 export function ReadMemoryStats():Promise<main.Memory>;
 
 export function UnblockAllDevices():Promise<void>;
@@ -22,3 +24,5 @@ export function UnblockAllDevices():Promise<void>;
 export function UnblockUSBPorts():Promise<void>;
 
 export function WailsInit(arg1:runtime.Runtime):Promise<void>;
+
+export function WriteLog(arg1:string):Promise<void>;
